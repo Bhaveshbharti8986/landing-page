@@ -13,24 +13,44 @@ const gymImages = [
 export default function GymGallery() {
   const targetRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: targetRef });
+  
+  // Align scroll progress exactly to the sticky window context
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end end"]
+  });
   
   const [maxScroll, setMaxScroll] = useState(0);
 
-  useEffect(() => {
-    const calculateScroll = () => {
-      if (trackRef.current) {
-        const trackWidth = trackRef.current.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        // Symmetrical layout sliding distance logic
-        const overflow = trackWidth - viewportWidth;
-        setMaxScroll(overflow > 0 ? overflow : 0);
-      }
-    };
+  const calculateScroll = () => {
+    if (trackRef.current) {
+      const trackWidth = trackRef.current.scrollWidth;
+      const viewportWidth = window.innerWidth;
+      const overflow = trackWidth - viewportWidth;
+      setMaxScroll(overflow > 0 ? overflow : 0);
+    }
+  };
 
+  useEffect(() => {
     calculateScroll();
+    
+    // Safely check images that may have already been loaded/cached
+    if (trackRef.current) {
+      const images = trackRef.current.querySelectorAll('img');
+      images.forEach(img => {
+        if (img.complete) {
+          calculateScroll();
+        }
+      });
+    }
+
+    const timer = setTimeout(calculateScroll, 150);
     window.addEventListener('resize', calculateScroll);
-    return () => window.removeEventListener('resize', calculateScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', calculateScroll);
+    };
   }, []);
 
   const x = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
@@ -60,6 +80,7 @@ export default function GymGallery() {
               <img
                 src={image.url}
                 alt={image.title}
+                onLoad={calculateScroll}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0"
               />
               

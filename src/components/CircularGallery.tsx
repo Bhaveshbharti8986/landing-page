@@ -439,8 +439,8 @@ class Media {
     // cards stay visible.
     const isMobile = this.screen.width < 640;
     const isTablet = this.screen.width >= 640 && this.screen.width < 1024;
-    const baseWidth = isMobile ? 580 : isTablet ? 380 : 450;
-    const baseHeight = isMobile ? 800 : isTablet ? 500 : 620;
+    const baseWidth = isMobile ? 580 : isTablet ? 380 : 540;
+    const baseHeight = isMobile ? 800 : isTablet ? 500 : 720;
     const basePadding = isMobile ? 2.0 : isTablet ? 1.0 : 1.8;
 
     this.scale = this.screen.height / 1500;
@@ -567,8 +567,17 @@ class App {
     const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
     const width = height * this.camera.aspect;
     this.viewport = { width, height };
+    
+    // Reset scroll and wrapping positions on resize to prevent card overlapping desync
+    this.scroll.current = 0;
+    this.scroll.target = 0;
+    this.scroll.last = 0;
+    
     if (this.medias) {
-      this.medias.forEach(media => media.onResize({ screen: this.screen, viewport: this.viewport }));
+      this.medias.forEach(media => {
+        media.extra = 0;
+        media.onResize({ screen: this.screen, viewport: this.viewport });
+      });
     }
   }
 
