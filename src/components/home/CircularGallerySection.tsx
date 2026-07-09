@@ -34,7 +34,7 @@ export default function CircularGallerySection() {
     <CircularGallery
       items={gymPhotos}
       bend={1}
-      textColor="#dc2626" // Premium Red text color
+      textColor="#D4AF37" // Theme Gold text color
       borderRadius={0.04}
       scrollSpeed={2.2}
       scrollEase={0.06}

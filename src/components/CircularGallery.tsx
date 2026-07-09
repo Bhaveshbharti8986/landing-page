@@ -17,11 +17,8 @@ function autoBind(instance: any): void {
   });
 }
 
-// Gym theme ke liye Orbitron font set kiya hai
-// const DEFAULT_FONT = 'bold 28px Orbitron';
-// Is line ko top par update karo
-const DEFAULT_FONT = '900 32px Orbitron';
-const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap';
+const DEFAULT_FONT = '900 36px Montserrat';
+const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap';
 
 function deriveFontFamilyFromUrl(url: string): string {
   const fileName = (url.split('/').pop() || 'custom-font').split('?')[0];
@@ -335,7 +332,7 @@ class Media {
 
           /* Thin red rim glow that lights up on the focused center card */
           float rim = smoothstep(-0.02, 0.0, d) * (1.0 - smoothstep(0.0, 0.025, d));
-          vec3 glow = vec3(0.86, 0.15, 0.15) * rim * (1.0 - focus) * 1.5;
+          vec3 glow = vec3(0.718, 0.11, 0.11) * rim * (1.0 - focus) * 1.8;
 
           gl_FragColor = vec4(graded + glow, alpha);
         }
@@ -643,13 +640,13 @@ export default function CircularGallery({ items, bend = 1, textColor = '#ffffff'
   }, [items, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase]);
 
   return (
-    <div className="relative h-[300vh] bg-black w-full">
+    <div className="relative h-[300vh] bg-background-theme w-full">
       {/* Sticky Centered Heading Layer */}
       <div className="absolute left-1/2 -translate-x-1/2 top-12 z-10 text-center w-full px-4 pointer-events-none">
-        <h2 className="text-4xl md:text-6xl font-black text-white tracking-wider uppercase">
-          Our <span className="text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">Arena</span>
+        <h2 className="text-4xl md:text-6xl font-extrabold text-white-theme tracking-wider uppercase">
+          Our <span className="text-gold-theme drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">Arena</span>
         </h2>
-        <p className="text-zinc-500 mt-2 text-xs md:text-sm font-bold uppercase tracking-widest">
+        <p className="text-gray-theme/60 mt-2 text-xs md:text-sm font-bold uppercase tracking-widest">
           // Scroll down to see the beast mode
         </p>
       </div>
@@ -670,7 +667,7 @@ export default function CircularGallery({ items, bend = 1, textColor = '#ffffff'
         {/* Ambient red glow behind the cards for a premium studio-light feel.
             Sits as a normal child so it renders behind the WebGL canvas,
             which gets appended after it. */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full bg-red-700/10 blur-[120px] pointer-events-none" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] rounded-full bg-maroon-theme/20 blur-[120px] pointer-events-none" />
       </div>
     </div>
   );

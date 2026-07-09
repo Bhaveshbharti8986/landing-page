@@ -56,15 +56,15 @@ export default function GymGallery() {
   const x = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
 
   return (
-    <section ref={targetRef} className="relative h-[300vh] bg-black">
+    <section ref={targetRef} className="relative h-[300vh] bg-background-theme">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         
         {/* Centered Heading Layout */}
         <div className="absolute left-1/2 -translate-x-1/2 top-12 z-10 text-center w-full px-4">
-          <h2 className="text-4xl md:text-6xl font-black text-white tracking-wider uppercase">
-            Our <span className="text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">Arena</span>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white-theme tracking-wider uppercase">
+            Our <span className="text-gold-theme drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">Arena</span>
           </h2>
-          <p className="text-zinc-500 mt-2 text-xs md:text-sm font-bold uppercase tracking-widest">
+          <p className="text-gray-theme/60 mt-2 text-xs md:text-sm font-bold uppercase tracking-widest">
             // Scroll down to explore
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function GymGallery() {
           {gymImages.map((image) => (
             <div
               key={image.id}
-              className="group relative h-[420px] w-[300px] md:h-[480px] md:w-[380px] flex-shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all duration-300 hover:border-red-600"
+              className="group relative h-[420px] w-[300px] md:h-[480px] md:w-[380px] flex-shrink-0 overflow-hidden rounded-xl border border-card-theme bg-surface-theme transition-all duration-300 hover:border-gold-theme"
             >
               {/* Gym Image */}
               <img
@@ -85,14 +85,14 @@ export default function GymGallery() {
               />
               
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background-theme via-transparent to-transparent opacity-95" />
               
               {/* Title */}
               <div className="absolute bottom-6 left-6 z-10">
-                <p className="text-xs font-bold uppercase tracking-widest text-red-500 mb-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-red-theme mb-1">
                   // GO HARD
                 </p>
-                <h3 className="text-2xl font-black uppercase text-white tracking-wide">
+                <h3 className="text-2xl font-black uppercase text-white-theme tracking-wide">
                   {image.title}
                 </h3>
               </div>

@@ -20,7 +20,7 @@ export function Marquee({
   return (
     <div 
       className={cn(
-        "w-full overflow-hidden bg-zinc-950/90 border-y border-zinc-900/60 py-4 md:py-6 z-10 relative",
+        "w-full overflow-hidden bg-surface-theme/90 border-y border-card-theme/60 py-4 md:py-6 z-10 relative",
         className
       )} 
       {...props}
@@ -63,11 +63,11 @@ export default function WordMarquee() {
         {gymWords.map((word, index) => (
           <React.Fragment key={index}>
             <span 
-              className="text-xl md:text-3xl font-mono font-black italic tracking-widest text-zinc-700/60 uppercase select-none hover:text-white transition-colors duration-300"
+              className="text-xl md:text-3xl font-mono font-black italic tracking-widest text-gray-theme/50 uppercase select-none hover:text-gold-theme transition-colors duration-300"
             >
               {word}
             </span>
-            <span className="w-2 h-2 rotate-45 bg-red-600/40 block shrink-0" />
+            <span className="w-2 h-2 rotate-45 bg-red-theme/50 block shrink-0" />
           </React.Fragment>
         ))}
       </div>
