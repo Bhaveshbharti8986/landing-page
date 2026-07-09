@@ -1,6 +1,6 @@
 'use client';
 import { motion, useTransform, useScroll } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 const gymImages = [
   { id: 1, url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=600', title: 'Heavy Lifting' },
@@ -12,10 +12,28 @@ const gymImages = [
 
 export default function GymGallery() {
   const targetRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: targetRef });
+  
+  const [maxScroll, setMaxScroll] = useState(0);
 
-  // 5 images ke hisab se -70% horizontal push ekदम smooth sliding dega
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-70%"]);
+  useEffect(() => {
+    const calculateScroll = () => {
+      if (trackRef.current) {
+        const trackWidth = trackRef.current.scrollWidth;
+        const viewportWidth = window.innerWidth;
+        // Symmetrical layout sliding distance logic
+        const overflow = trackWidth - viewportWidth;
+        setMaxScroll(overflow > 0 ? overflow : 0);
+      }
+    };
+
+    calculateScroll();
+    window.addEventListener('resize', calculateScroll);
+    return () => window.removeEventListener('resize', calculateScroll);
+  }, []);
+
+  const x = useTransform(scrollYProgress, [0, 1], [0, -maxScroll]);
 
   return (
     <section ref={targetRef} className="relative h-[300vh] bg-black">
@@ -27,16 +45,16 @@ export default function GymGallery() {
             Our <span className="text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.6)]">Arena</span>
           </h2>
           <p className="text-zinc-500 mt-2 text-xs md:text-sm font-bold uppercase tracking-widest">
-
+            // Scroll down to explore
           </p>
         </div>
 
         {/* Moving Track */}
-        <motion.div style={{ x }} className="flex gap-6 pt-32 pl-12">
+        <motion.div ref={trackRef} style={{ x }} className="flex gap-6 pt-32 pl-12 pr-12">
           {gymImages.map((image) => (
             <div
               key={image.id}
-              className="group relative h-[420px] w-[300px] md:h-[480px] md:w-[380px] overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all duration-300 hover:border-red-600"
+              className="group relative h-[420px] w-[300px] md:h-[480px] md:w-[380px] flex-shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all duration-300 hover:border-red-600"
             >
               {/* Gym Image */}
               <img

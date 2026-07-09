@@ -439,9 +439,9 @@ class Media {
     // cards stay visible.
     const isMobile = this.screen.width < 640;
     const isTablet = this.screen.width >= 640 && this.screen.width < 1024;
-    const baseWidth = isMobile ? 460 : isTablet ? 580 : 700;
-    const baseHeight = isMobile ? 600 : isTablet ? 750 : 900;
-    const basePadding = isMobile ? 0.9 : isTablet ? 1.4 : 2;
+    const baseWidth = isMobile ? 580 : isTablet ? 380 : 450;
+    const baseHeight = isMobile ? 800 : isTablet ? 500 : 620;
+    const basePadding = isMobile ? 2.0 : isTablet ? 1.0 : 1.8;
 
     this.scale = this.screen.height / 1500;
     this.plane.scale.y = (this.viewport.height * (baseHeight * this.scale)) / this.screen.height;
@@ -552,7 +552,11 @@ class App {
     const maxScroll = parentRect.height - window.innerHeight;
     const scrolled = Math.max(0, Math.min(maxScroll, -parentRect.top));
     
-    this.scroll.target = scrolled * 0.015 * this.scrollSpeed;
+    // Calculate scroll target such that each unique image comes to the front exactly once
+    const progress = maxScroll > 0 ? (scrolled / maxScroll) : 0;
+    const uniqueLength = this.mediasImages.length / 2;
+    const totalUniqueWidth = this.medias[0].width * uniqueLength;
+    this.scroll.target = progress * totalUniqueWidth;
   }
 
   onResize() {
