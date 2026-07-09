@@ -1,0 +1,25 @@
+.card-swap-container {
+  position: relative;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  background-color: #111111;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 35px rgba(212, 175, 55, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+}
