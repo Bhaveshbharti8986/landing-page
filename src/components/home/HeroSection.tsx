@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-function ArrowRightIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-      <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+
 
 export default function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -229,7 +223,7 @@ export default function HeroSection() {
               <span className="absolute bottom-0 left-0 h-[3px] w-full bg-red-theme" />
             </span>
             Explore Membership
-            <ArrowRightIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          
           </motion.button>
 
           <motion.button
