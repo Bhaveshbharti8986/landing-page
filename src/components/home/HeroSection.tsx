@@ -11,6 +11,11 @@ export default function HeroSection() {
     const video = videoRef.current;
     if (!video) return;
 
+    // Explicitly set DOM properties to bypass React muted/playsInline rendering quirks
+    // and satisfy iOS Safari mobile autoplay/inline scrubbing requirements.
+    video.muted = true;
+    video.playsInline = true;
+
     let targetTime = 0;
     let currentTime = 0;
     let isRunning = false;
@@ -31,8 +36,9 @@ export default function HeroSection() {
         return;
       }
 
+      // Ultra-fast tracking (lerp factor raised to 0.7 for immediate follow-through)
       if (!video.seeking) {
-        currentTime += diff * 0.15;
+        currentTime += diff * 0.7;
         video.currentTime = currentTime;
       }
 
@@ -58,25 +64,13 @@ export default function HeroSection() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('touchmove', handleScroll, { passive: true });
 
-    // Warm up the video decoder (necessary for mobile browsers like Safari/Chrome on iOS/Android)
-    const warmUpDecoder = async () => {
-      try {
-        await video.play();
-        video.pause();
-      } catch (err) {
-        console.log("Decoder warm-up skipped/failed:", err);
-      }
-    };
-
     // Initial check when component mounts or metadata is loaded
     const handleLoadedMetadata = () => {
       handleScroll();
-      warmUpDecoder();
     };
 
     if (video.readyState >= 1) {
       handleScroll();
-      warmUpDecoder();
     } else {
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
     }
