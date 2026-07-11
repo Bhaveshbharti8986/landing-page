@@ -89,7 +89,8 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-black text-white-theme">
+    <div className="relative h-[200vh] bg-black">
+      <section className="sticky top-0 h-screen w-full overflow-hidden bg-black text-white-theme">
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
         <video
@@ -325,6 +326,7 @@ export default function HeroSection() {
           use the Arena app
         </span>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
