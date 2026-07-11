@@ -13,26 +13,30 @@ export default function HeroSection() {
 
     let targetTime = 0;
     let currentTime = 0;
-    let isSeeking = false;
+    let isRunning = false;
 
     const render = () => {
-      if (!video || !video.duration || isNaN(video.duration)) return;
-      if (isSeeking) return;
+      if (!video || !video.duration || isNaN(video.duration)) {
+        isRunning = false;
+        return;
+      }
 
       const diff = targetTime - currentTime;
       if (Math.abs(diff) < 0.01) {
         currentTime = targetTime;
-        if (Math.abs(video.currentTime - currentTime) > 0.01) {
-          isSeeking = true;
+        if (!video.seeking && Math.abs(video.currentTime - currentTime) > 0.01) {
           video.currentTime = currentTime;
         }
+        isRunning = false;
         return;
       }
 
-      // Smooth seek (lerp)
-      currentTime += diff * 0.2;
-      isSeeking = true;
-      video.currentTime = currentTime;
+      if (!video.seeking) {
+        currentTime += diff * 0.15;
+        video.currentTime = currentTime;
+      }
+
+      requestAnimationFrame(render);
     };
 
     const handleScroll = () => {
@@ -43,12 +47,9 @@ export default function HeroSection() {
       // Calculate fraction of scroll (0 to 1) over the hero height
       const fraction = Math.min(Math.max(scrollTop / heroHeight, 0), 1);
       targetTime = fraction * video.duration;
-      requestAnimationFrame(render);
-    };
 
-    const handleSeeked = () => {
-      isSeeking = false;
-      if (Math.abs(targetTime - currentTime) > 0.01) {
+      if (!isRunning) {
+        isRunning = true;
         requestAnimationFrame(render);
       }
     };
@@ -56,7 +57,6 @@ export default function HeroSection() {
     // Listen to window scroll and touchmove events
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('touchmove', handleScroll, { passive: true });
-    video.addEventListener('seeked', handleSeeked);
 
     // Warm up the video decoder (necessary for mobile browsers like Safari/Chrome on iOS/Android)
     const warmUpDecoder = async () => {
@@ -85,7 +85,6 @@ export default function HeroSection() {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('touchmove', handleScroll);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('seeked', handleSeeked);
     };
   }, []);
 
