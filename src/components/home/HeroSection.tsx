@@ -1,28 +1,93 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-
-
 
 export default function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let targetTime = 0;
+    let currentTime = 0;
+    let isSeeking = false;
+
+    const render = () => {
+      if (!video || !video.duration || isNaN(video.duration)) return;
+      if (isSeeking) return;
+
+      const diff = targetTime - currentTime;
+      if (Math.abs(diff) < 0.01) {
+        currentTime = targetTime;
+        if (Math.abs(video.currentTime - currentTime) > 0.01) {
+          isSeeking = true;
+          video.currentTime = currentTime;
+        }
+        return;
+      }
+
+      // Smooth seek (lerp)
+      currentTime += diff * 0.2;
+      isSeeking = true;
+      video.currentTime = currentTime;
+    };
+
+    const handleScroll = () => {
+      if (!video || !video.duration || isNaN(video.duration)) return;
+      const scrollTop = window.scrollY;
+      const heroHeight = window.innerHeight;
+
+      // Calculate fraction of scroll (0 to 1) over the hero height
+      const fraction = Math.min(Math.max(scrollTop / heroHeight, 0), 1);
+      targetTime = fraction * video.duration;
+      requestAnimationFrame(render);
+    };
+
+    const handleSeeked = () => {
+      isSeeking = false;
+      if (Math.abs(targetTime - currentTime) > 0.01) {
+        requestAnimationFrame(render);
+      }
+    };
+
+    // Listen to window scroll events
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    video.addEventListener('seeked', handleSeeked);
+
+    // Initial check when component mounts or metadata is loaded
+    const handleLoadedMetadata = () => {
+      handleScroll();
+    };
+
+    if (video.readyState >= 1) {
+      handleScroll();
+    } else {
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('seeked', handleSeeked);
+    };
+  }, []);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-black text-white-theme">
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
         <video
-          autoPlay
+          ref={videoRef}
           muted
-          loop
           playsInline
-          preload="metadata"
+          preload="auto"
           poster="/hero-poster.webp"
           onLoadedData={() => setVideoLoaded(true)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-            videoLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${videoLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
@@ -36,147 +101,149 @@ export default function HeroSection() {
           />
         )}
 
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
-      </div>
-
-      {/* Ribbon graphic — layered, tapered red/gold silk sweeping behind the wordmark */}
-      <svg
-        className="pointer-events-none absolute inset-0 z-[5] h-full w-full"
-        viewBox="0 0 1600 700"
-        preserveAspectRatio="xMidYMid slice"
-        fill="none"
-      >
-        <defs>
-          <linearGradient id="ribbonGoldFill" x1="0" y1="0" x2="1" y2="0.15">
-            <stop offset="0%" stopColor="#7A5A12" stopOpacity="0" />
-            <stop offset="18%" stopColor="#D4AF37" stopOpacity="0.55" />
-            <stop offset="50%" stopColor="#F5D061" stopOpacity="0.9" />
-            <stop offset="82%" stopColor="#D4AF37" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#B71C1C" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="ribbonRedFill" x1="0" y1="0" x2="1" y2="-0.1">
-            <stop offset="0%" stopColor="#B71C1C" stopOpacity="0" />
-            <stop offset="20%" stopColor="#B71C1C" stopOpacity="0.55" />
-            <stop offset="52%" stopColor="#E23E3E" stopOpacity="0.85" />
-            <stop offset="80%" stopColor="#D4AF37" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="ribbonThread" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#F5D061" stopOpacity="0" />
-            <stop offset="50%" stopColor="#F5D061" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#F5D061" stopOpacity="0" />
-          </linearGradient>
-          <filter id="ribbonGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="10" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Gold ribbon — filled taper shape, glow layer + crisp thread on top.
-            The fill and thread continuously morph between two curve states,
-            so the ribbon reads as flowing silk rather than a static line. */}
-        <motion.g
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
+        {/* Ribbon graphic — layered, tapered red/gold silk sweeping behind the wordmark */}
+        <svg
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+          viewBox="0 0 1600 700"
+          preserveAspectRatio="xMidYMid slice"
+          fill="none"
         >
+          <defs>
+            <linearGradient id="ribbonGoldFill" x1="0" y1="0" x2="1" y2="0.15">
+              <stop offset="0%" stopColor="#7A5A12" stopOpacity="0" />
+              <stop offset="18%" stopColor="#D4AF37" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="#F5D061" stopOpacity="0.45" />
+              <stop offset="82%" stopColor="#D4AF37" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#B71C1C" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="ribbonRedFill" x1="0" y1="0" x2="1" y2="-0.1">
+              <stop offset="0%" stopColor="#B71C1C" stopOpacity="0" />
+              <stop offset="20%" stopColor="#B71C1C" stopOpacity="0.55" />
+              <stop offset="52%" stopColor="#E23E3E" stopOpacity="0.85" />
+              <stop offset="80%" stopColor="#D4AF37" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="ribbonThread" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#F5D061" stopOpacity="0" />
+              <stop offset="50%" stopColor="#F5D061" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#F5D061" stopOpacity="0" />
+            </linearGradient>
+            <filter id="ribbonGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="10" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Gold ribbon — filled taper shape, glow layer + crisp thread on top.
+              The fill and thread continuously morph between two curve states,
+              so the ribbon reads as flowing silk rather than a static line. */}
+          <motion.g
+            initial={{ opacity: 0, y: -80 }}
+            animate={{ opacity: 1, y: -80 }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.path
+              initial={{ pathLength: 0 }}
+              animate={{
+                pathLength: 1,
+                d: [
+                  'M-80,260 C220,70 420,40 610,150 C790,255 940,110 1140,60 C1330,15 1500,55 1680,150 L1680,168 C1500,80 1335,40 1148,84 C950,132 800,272 618,170 C425,58 224,86 -80,278 Z',
+                  'M-80,232 C220,110 430,20 610,178 C780,326 940,80 1140,96 C1320,110 1500,30 1680,120 L1680,138 C1500,58 1324,128 1148,116 C950,102 786,344 618,196 C432,38 226,128 -80,250 Z',
+                  'M-80,260 C220,70 420,40 610,150 C790,255 940,110 1140,60 C1330,15 1500,55 1680,150 L1680,168 C1500,80 1335,40 1148,84 C950,132 800,272 618,170 C425,58 224,86 -80,278 Z',
+                ],
+              }}
+              transition={{
+                pathLength: { duration: 1.8, ease: [0.22, 1, 0.36, 1] },
+                d: { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1.8 },
+              }}
+              filter="url(#ribbonGlow)"
+              fill="url(#ribbonGoldFill)"
+            />
+            <motion.path
+              animate={{
+                d: [
+                  'M-80,264 C220,78 420,50 610,158 C790,260 940,118 1140,68 C1330,24 1500,62 1680,156',
+                  'M-80,236 C220,118 430,28 610,186 C780,332 940,88 1140,104 C1320,118 1500,38 1680,126',
+                  'M-80,264 C220,78 420,50 610,158 C790,260 940,118 1140,68 C1330,24 1500,62 1680,156',
+                ],
+              }}
+              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
+              stroke="url(#ribbonThread)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </motion.g>
+
+          {/* Red ribbon — mirrored, sits lower, crosses under the tagline, own morph cycle */}
+          <motion.g
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <motion.path
+              initial={{ pathLength: 0 }}
+              animate={{
+                pathLength: 1,
+                d: [
+                  'M-80,470 C200,375 360,590 600,520 C840,450 980,555 1220,468 C1420,395 1540,430 1680,500 L1680,516 C1540,448 1424,412 1226,484 C986,570 842,466 604,536 C362,606 202,392 -80,486 Z',
+                  'M-80,498 C200,405 356,548 600,486 C840,424 984,596 1220,510 C1414,438 1546,466 1680,528 L1680,544 C1546,484 1420,450 1226,522 C990,610 838,510 604,570 C358,632 198,420 -80,514 Z',
+                  'M-80,470 C200,375 360,590 600,520 C840,450 980,555 1220,468 C1420,395 1540,430 1680,500 L1680,516 C1540,448 1424,412 1226,484 C986,570 842,466 604,536 C362,606 202,392 -80,486 Z',
+                ],
+              }}
+              transition={{
+                pathLength: { duration: 1.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] },
+                d: { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1.95 },
+              }}
+              filter="url(#ribbonGlow)"
+              fill="url(#ribbonRedFill)"
+            />
+            <motion.path
+              animate={{
+                d: [
+                  'M-80,478 C200,382 360,598 600,528 C840,458 980,563 1220,476 C1420,403 1540,438 1680,508',
+                  'M-80,506 C200,412 356,556 600,494 C840,432 984,604 1220,518 C1414,446 1546,474 1680,536',
+                  'M-80,478 C200,382 360,598 600,528 C840,458 980,563 1220,476 C1420,403 1540,438 1680,508',
+                ],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1.95 }}
+              stroke="url(#ribbonThread)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </motion.g>
+
+          {/* Thin gold filament — a lighter third pass for depth, close behind the wordmark,
+              drifts on its own slower cycle so the three layers never sync up */}
           <motion.path
-            initial={{ pathLength: 0 }}
+            initial={{ pathLength: 0, opacity: 0, y: -45 }}
             animate={{
               pathLength: 1,
+              opacity: 0.4,
+              y: -45,
               d: [
-                'M-80,260 C220,70 420,40 610,150 C790,255 940,110 1140,60 C1330,15 1500,55 1680,150 L1680,168 C1500,80 1335,40 1148,84 C950,132 800,272 618,170 C425,58 224,86 -80,278 Z',
-                'M-80,232 C220,110 430,20 610,178 C780,326 940,80 1140,96 C1320,110 1500,30 1680,120 L1680,138 C1500,58 1324,128 1148,116 C950,102 786,344 618,196 C432,38 226,128 -80,250 Z',
-                'M-80,260 C220,70 420,40 610,150 C790,255 940,110 1140,60 C1330,15 1500,55 1680,150 L1680,168 C1500,80 1335,40 1148,84 C950,132 800,272 618,170 C425,58 224,86 -80,278 Z',
+                'M-80,340 C260,230 480,300 700,360 C920,420 1160,300 1400,260 C1500,244 1600,250 1680,270',
+                'M-80,318 C260,264 480,264 700,330 C920,396 1160,336 1400,290 C1500,270 1600,282 1680,296',
+                'M-80,340 C260,230 480,300 700,360 C920,420 1160,300 1400,260 C1500,244 1600,250 1680,270',
               ],
             }}
             transition={{
-              pathLength: { duration: 1.8, ease: [0.22, 1, 0.36, 1] },
-              d: { duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1.8 },
+              pathLength: { duration: 1.6, delay: 0.3, ease: 'easeOut' },
+              opacity: { duration: 1.6, delay: 0.3, ease: 'easeOut' },
+              d: { duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1.6 },
             }}
-            filter="url(#ribbonGlow)"
-            fill="url(#ribbonGoldFill)"
-          />
-          <motion.path
-            animate={{
-              d: [
-                'M-80,264 C220,78 420,50 610,158 C790,260 940,118 1140,68 C1330,24 1500,62 1680,156',
-                'M-80,236 C220,118 430,28 610,186 C780,332 940,88 1140,104 C1320,118 1500,38 1680,126',
-                'M-80,264 C220,78 420,50 610,158 C790,260 940,118 1140,68 C1330,24 1500,62 1680,156',
-              ],
-            }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
-            stroke="url(#ribbonThread)"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </motion.g>
-
-        {/* Red ribbon — mirrored, sits lower, crosses under the tagline, own morph cycle */}
-        <motion.g
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <motion.path
-            initial={{ pathLength: 0 }}
-            animate={{
-              pathLength: 1,
-              d: [
-                'M-80,470 C200,375 360,590 600,520 C840,450 980,555 1220,468 C1420,395 1540,430 1680,500 L1680,516 C1540,448 1424,412 1226,484 C986,570 842,466 604,536 C362,606 202,392 -80,486 Z',
-                'M-80,498 C200,405 356,548 600,486 C840,424 984,596 1220,510 C1414,438 1546,466 1680,528 L1680,544 C1546,484 1420,450 1226,522 C990,610 838,510 604,570 C358,632 198,420 -80,514 Z',
-                'M-80,470 C200,375 360,590 600,520 C840,450 980,555 1220,468 C1420,395 1540,430 1680,500 L1680,516 C1540,448 1424,412 1226,484 C986,570 842,466 604,536 C362,606 202,392 -80,486 Z',
-              ],
-            }}
-            transition={{
-              pathLength: { duration: 1.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] },
-              d: { duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1.95 },
-            }}
-            filter="url(#ribbonGlow)"
-            fill="url(#ribbonRedFill)"
-          />
-          <motion.path
-            animate={{
-              d: [
-                'M-80,478 C200,382 360,598 600,528 C840,458 980,563 1220,476 C1420,403 1540,438 1680,508',
-                'M-80,506 C200,412 356,556 600,494 C840,432 984,604 1220,518 C1414,446 1546,474 1680,536',
-                'M-80,478 C200,382 360,598 600,528 C840,458 980,563 1220,476 C1420,403 1540,438 1680,508',
-              ],
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1.95 }}
             stroke="url(#ribbonThread)"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
-        </motion.g>
+        </svg>
 
-        {/* Thin gold filament — a lighter third pass for depth, close behind the wordmark,
-            drifts on its own slower cycle so the three layers never sync up */}
-        <motion.path
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{
-            pathLength: 1,
-            opacity: 0.7,
-            d: [
-              'M-80,340 C260,230 480,300 700,360 C920,420 1160,300 1400,260 C1500,244 1600,250 1680,270',
-              'M-80,318 C260,264 480,264 700,330 C920,396 1160,336 1400,290 C1500,270 1600,282 1680,296',
-              'M-80,340 C260,230 480,300 700,360 C920,420 1160,300 1400,260 C1500,244 1600,250 1680,270',
-            ],
-          }}
-          transition={{
-            pathLength: { duration: 1.6, delay: 0.3, ease: 'easeOut' },
-            opacity: { duration: 1.6, delay: 0.3, ease: 'easeOut' },
-            d: { duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1.6 },
-          }}
-          stroke="url(#ribbonThread)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
+      </div>
+
 
       {/* Content — massive wordmark centered over the video */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">

@@ -59,15 +59,15 @@ export default function WordMarquee() {
 
   return (
     <Marquee speed={25} pauseOnHover={false} direction="left" className="my-0">
-      <div className="flex gap-16 items-center shrink-0 pr-16">
+      <div className="flex gap-6 sm:gap-10 md:gap-16 items-center shrink-0 pr-6 sm:pr-10 md:pr-16">
         {gymWords.map((word, index) => (
           <React.Fragment key={index}>
             <span 
-              className="text-xl md:text-3xl font-mono font-black italic tracking-widest text-gray-theme/50 uppercase select-none hover:text-gold-theme transition-colors duration-300"
+              className="text-base sm:text-xl md:text-3xl font-mono font-black italic tracking-widest text-gray-theme/50 uppercase select-none hover:text-gold-theme transition-colors duration-300"
             >
               {word}
             </span>
-            <span className="w-2 h-2 rotate-45 bg-red-theme/50 block shrink-0" />
+            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rotate-45 bg-red-theme/50 block shrink-0" />
           </React.Fragment>
         ))}
       </div>
