@@ -6,12 +6,14 @@ const montserrat = Montserrat({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["700", "800", "900"],
+  display: "swap",
 });
 
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,6 +32,9 @@ export default function RootLayout({
       className={`${inter.variable} ${montserrat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preload" href="/hero-poster.webp" as="image" type="image/webp" fetchPriority="high" />
+      </head>
       <body className="min-h-full flex flex-col overflow-x-hidden bg-background-theme text-white-theme">{children}</body>
     </html>
   );
