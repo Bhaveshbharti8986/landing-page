@@ -53,23 +53,37 @@ export default function HeroSection() {
       }
     };
 
-    // Listen to window scroll events
+    // Listen to window scroll and touchmove events
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
     video.addEventListener('seeked', handleSeeked);
+
+    // Warm up the video decoder (necessary for mobile browsers like Safari/Chrome on iOS/Android)
+    const warmUpDecoder = async () => {
+      try {
+        await video.play();
+        video.pause();
+      } catch (err) {
+        console.log("Decoder warm-up skipped/failed:", err);
+      }
+    };
 
     // Initial check when component mounts or metadata is loaded
     const handleLoadedMetadata = () => {
       handleScroll();
+      warmUpDecoder();
     };
 
     if (video.readyState >= 1) {
       handleScroll();
+      warmUpDecoder();
     } else {
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
     }
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('seeked', handleSeeked);
     };
