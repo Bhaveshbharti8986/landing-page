@@ -35,16 +35,16 @@ export default function CardSwapSection() {
         {/* Left Column: Heading and Details */}
         <div className="w-full lg:w-[40%] flex flex-col text-left pr-6 lg:pr-0 relative z-20">
           <span className="text-red-theme font-extrabold uppercase tracking-widest text-xs md:text-sm mb-4 border border-red-theme/30 px-4 py-1.5 rounded-full bg-red-theme/5 self-start">
-            // The Iron Legacy
+            // Core Platform
           </span>
           <h2 className="text-4xl md:text-6xl font-extrabold text-white-theme tracking-tight uppercase leading-none mb-6">
-            Forge your <br />
+            Explore our <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-theme via-gold-light to-gold-theme drop-shadow-[0_0_15px_rgba(212,175,55,0.35)]">
-              limitless legacy
+              key features
             </span>
           </h2>
           <p className="text-gray-theme text-base md:text-lg font-medium leading-relaxed max-w-xl">
-            Step into the ultimate arena designed for elite performance. From heavy strength labs to state-of-the-art conditioning zones, we provide the raw machinery, expert coaching, and relentless environment you need to shatter boundaries.
+            Discover the key features of our platform designed to elevate your journey. Explore the unique experiences, tools, and environments that will completely change and redefine the way you train.
           </p>
         </div>
 
